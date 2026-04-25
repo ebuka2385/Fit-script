@@ -29,12 +29,10 @@ Then open: `http://localhost:5000`
 
 ## Current Feature Set
 
-- Workout logging API: `POST /log_workout`
-- Workout history API: `GET /get_workouts`
-- Delete workout API: `DELETE /delete_workout/<id>`
-- Suggestions API: `GET /suggestions`
-- Stats API: `GET /stats`
-- Exercise progress API: `GET /progress?exercise=...`
+- Log workouts with sets, reps, and weight
+- View workout history and progression trends
+- Track consistency metrics like streak and volume
+- Get training feedback based on workout patterns
 
 ## Fit-script Feedback (What Makes This an A Project)
 
@@ -85,6 +83,16 @@ Why this helps:
 - Add input rate limiting and stronger request validation
 - Add basic test coverage (`pytest`) for key endpoints
 - Add `.gitignore` to exclude `__pycache__/`, `*.pyc`, `.DS_Store`, and `fitscript.db`
+
+## Security Note (Do Not Expose Secrets)
+
+Before pushing code, make sure you do **not** commit or publicly document:
+- API keys, tokens, passwords, or private URLs
+- Local database files or personal data exports
+- `.env` files with real credentials
+- Internal-only routes/endpoints that are not intended as public APIs
+
+Use environment variables for sensitive values and keep only non-secret examples in the repo (for example, `.env.example`).
 
 ## License
 
