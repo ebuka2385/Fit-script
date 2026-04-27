@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+fitscript.db
+.DS_Store
+.claude/
+
