@@ -6,204 +6,294 @@
     <title>FitScript</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
-            --bg: #0f0f0f;
-            --card: #181818;
-            --border: #262626;
+            --bg: #0a0a0a;
+            --card: #141414;
+            --border: #222;
             --accent: #c8f135;
             --text: #f0f0f0;
-            --muted: #666;
+            --muted: #555;
             --warning: #ff6b35;
             --info: #4fc3f7;
             --pr: #ffc94d;
+            --danger: #ff3b3b;
+            --caution: #ffaa00;
         }
-
         body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
 
-        header {
-            padding: 24px 40px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: var(--accent); }
-
-        .header-stats { display: flex; gap: 28px; align-items: flex-end; }
+        /* ── HEADER ── */
+        header { padding: 20px 40px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 34px; letter-spacing: 3px; color: var(--accent); }
+        .header-stats { display: flex; gap: 32px; align-items: flex-end; }
         .stat-item { text-align: right; }
         .stat-val { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); line-height: 1; }
-        .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+        .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        .user-bar { display: flex; align-items: center; gap: 14px; }
+        .user-name { font-size: 13px; color: var(--muted); }
+        .user-name strong { color: var(--text); }
+        .logout-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 13px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.15s; text-decoration: none; display: inline-block; }
+        .logout-btn:hover { border-color: var(--warning); color: var(--warning); }
 
-        .container {
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: 32px 24px;
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            gap: 24px;
-        }
+        /* ── LAYOUT ── */
+        .page { max-width: 1280px; margin: 0 auto; padding: 28px 24px; display: flex; flex-direction: column; gap: 24px; }
+        .row { display: grid; gap: 20px; }
+        .row-3 { grid-template-columns: 320px 1fr 1fr; }
+        .row-2 { grid-template-columns: 1fr 1fr; }
+        .row-full { grid-template-columns: 1fr; }
 
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
-        .card h2 { font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: 1px; margin-bottom: 16px; color: var(--accent); }
+        /* ── CARD ── */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
+        .card h2 { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 1.5px; color: var(--accent); margin-bottom: 16px; }
 
-        /* FORM */
-        .form-group { margin-bottom: 11px; }
-
-        label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
-
-        input, select {
-            width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 8px 11px;
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            transition: border-color 0.15s;
-        }
-
+        /* ── FORM ── */
+        .form-group { margin-bottom: 10px; }
+        label { display: block; font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        input, select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 8px 11px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; transition: border-color 0.15s; }
         input:focus, select:focus { outline: none; border-color: var(--accent); }
         select option { background: var(--card); }
-
-        /* SET INPUTS ROW */
-        .set-input-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 8px;
-            align-items: flex-end;
-            margin-bottom: 10px;
-        }
-
+        .set-input-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
         .set-input-row input { margin: 0; }
-
-        button.add-set {
-            background: var(--border);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 8px 14px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: border-color 0.15s, background 0.15s;
-        }
-
+        button.add-set { background: var(--border); color: var(--text); border: 1px solid var(--border); border-radius: 7px; padding: 8px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.15s; }
         button.add-set:hover { border-color: var(--accent); background: rgba(200,241,53,0.06); color: var(--accent); }
-
-        /* SETS LIST */
-        #sets-list { margin-bottom: 12px; }
-
-        .set-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 6px 10px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 5px;
-        }
-
+        #sets-list { margin-bottom: 10px; }
+        .set-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; font-size: 13px; margin-bottom: 5px; }
         .set-item span { color: var(--muted); }
         .set-item span strong { color: var(--text); font-weight: 500; }
-
-        .set-remove {
-            background: none;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 15px;
-            line-height: 1;
-            padding: 0 2px;
-            transition: color 0.1s;
-        }
-
+        .set-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; transition: color 0.1s; }
         .set-remove:hover { color: var(--warning); }
-
-        .date-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+        .date-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
         .date-row label { margin: 0; white-space: nowrap; }
         .date-row input { padding: 7px 10px; font-size: 13px; }
-
-        button.primary {
-            width: 100%;
-            background: var(--accent);
-            color: #0f0f0f;
-            border: none;
-            border-radius: 8px;
-            padding: 11px;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 17px;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: opacity 0.15s;
-        }
-
+        button.primary { width: 100%; background: var(--accent); color: #0a0a0a; border: none; border-radius: 8px; padding: 11px; font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 1px; cursor: pointer; transition: opacity 0.15s; }
         button.primary:hover { opacity: 0.85; }
-        button.primary:disabled { opacity: 0.35; cursor: not-allowed; }
-
+        button.primary:disabled { opacity: 0.3; cursor: not-allowed; }
         #form-msg { margin-top: 8px; font-size: 13px; text-align: center; min-height: 18px; }
 
-        .right { display: flex; flex-direction: column; gap: 20px; }
+        /* ── ANATOMY ── */
+        .anatomy-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
+        .anatomy-toggle { display: flex; gap: 6px; }
+        .toggle-btn { background: var(--bg); border: 1px solid var(--border); color: var(--muted); padding: 5px 16px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.15s; }
+        .toggle-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(200,241,53,0.06); }
+        #anatomy-svg { width: 100%; max-width: 240px; }
+        #anatomy-svg [data-muscle] { transition: fill 0.5s ease, filter 0.5s ease; cursor: pointer; }
+        .muscle-tooltip {
+            position: absolute; background: #1a1a1a; border: 1px solid var(--border);
+            border-radius: 8px; padding: 9px 13px; font-size: 12px; pointer-events: none;
+            opacity: 0; transition: opacity 0.15s; z-index: 10; white-space: nowrap; min-width: 150px;
+        }
+        .muscle-tooltip.visible { opacity: 1; }
+        .tooltip-name { font-family: 'Bebas Neue', sans-serif; font-size: 15px; color: var(--accent); letter-spacing: 1px; }
+        .tooltip-risk { font-size: 12px; margin-top: 2px; }
+        .risk-legend { display: flex; gap: 12px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+        .legend-dot { width: 9px; height: 9px; border-radius: 50%; }
 
-        /* SUGGESTIONS */
+        /* ── SUGGESTIONS ── */
         #suggestions-list { display: flex; flex-direction: column; gap: 8px; }
+        .suggestion { padding: 10px 13px; border-radius: 7px; font-size: 13px; line-height: 1.5; border-left: 3px solid; }
+        .suggestion.warning  { background: rgba(255,107,53,0.07); border-color: var(--warning); color: #ffaa88; }
+        .suggestion.info     { background: rgba(79,195,247,0.07); border-color: var(--info); color: #9ee4ff; }
+        .suggestion.progress { background: rgba(200,241,53,0.07); border-color: var(--accent); color: var(--accent); }
+        .suggestion.danger   { background: rgba(255,59,59,0.09); border-color: var(--danger); color: #ff9999; }
 
-        .suggestion { padding: 10px 13px; border-radius: 7px; font-size: 13.5px; line-height: 1.5; border-left: 3px solid; }
-        .suggestion.warning { background: rgba(255,107,53,0.08); border-color: var(--warning); color: #ffaa88; }
-        .suggestion.info    { background: rgba(79,195,247,0.08); border-color: var(--info); color: #9ee4ff; }
-        .suggestion.progress { background: rgba(200,241,53,0.08); border-color: var(--accent); color: var(--accent); }
+        /* ── ACWR ── */
+        .acwr-list { display: flex; flex-direction: column; gap: 10px; }
+        .acwr-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+        .acwr-muscle { color: var(--text); font-weight: 500; text-transform: capitalize; }
+        .acwr-val { font-family: 'Bebas Neue', sans-serif; font-size: 14px; }
+        .acwr-track { background: var(--bg); border-radius: 4px; height: 6px; overflow: hidden; border: 1px solid var(--border); }
+        .acwr-fill { height: 100%; border-radius: 4px; transition: width 0.7s ease; }
 
-        /* HISTORY */
+        /* ── READINESS ── */
+        .readiness-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .readiness-cell { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+        .readiness-cell .muscle-name { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+        .readiness-cell .score-val { font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1; }
+        .readiness-cell .score-status { font-size: 10px; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+        /* ── FORECAST ── */
+        .pr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .pr-table th { text-align: left; padding: 6px 8px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); }
+        .pr-table td { padding: 9px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .pr-table tr:last-child td { border-bottom: none; }
+        .pr-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .pred-val { font-family: 'Bebas Neue', sans-serif; font-size: 16px; }
+        .pred-delta { font-size: 11px; color: var(--accent); margin-left: 4px; }
+        .pred-delta.neg { color: var(--warning); }
+
+        /* ── HISTORY ── */
         .table-wrap { overflow-x: auto; }
-
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-
-        th { text-align: left; padding: 7px 10px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); }
+        th { text-align: left; padding: 7px 10px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); }
         td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: rgba(255,255,255,0.02); }
-
-        /* Grouped history rows */
         .sets-detail { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
         .set-line { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
         .set-line strong { color: var(--text); font-weight: 400; }
-        .set-line .delete-btn { padding: 1px 6px; font-size: 11px; }
-
-        .delete-btn {
-            background: transparent;
-            color: var(--muted);
-            border: 1px solid var(--border);
-            padding: 3px 8px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: border-color 0.15s, color 0.15s;
-        }
-
+        .delete-btn { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 2px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; transition: 0.15s; }
         .delete-btn:hover { border-color: var(--warning); color: var(--warning); }
-
-        .pr-badge {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--pr);
-            background: rgba(255,201,77,0.1);
-            border: 1px solid rgba(255,201,77,0.3);
-            border-radius: 4px;
-            padding: 1px 5px;
-            margin-left: 5px;
-            vertical-align: middle;
-        }
-
+        .pr-badge { font-size: 10px; font-weight: 600; color: var(--pr); background: rgba(255,201,77,0.1); border: 1px solid rgba(255,201,77,0.3); border-radius: 4px; padding: 1px 5px; margin-left: 5px; vertical-align: middle; }
         .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 20px 0; }
+        .chart-container { position: relative; }
+
+        /* ── RECOVERY FORECAST ── */
+        .recovery-grid { display: flex; flex-direction: column; gap: 10px; }
+        .recovery-row {
+            display: grid; grid-template-columns: 150px 1fr 140px;
+            gap: 20px; align-items: center;
+            padding: 14px 18px; background: var(--bg);
+            border: 1px solid var(--border); border-radius: 10px;
+            transition: border-color 0.2s;
+        }
+        .recovery-row:hover { border-color: #333; }
+        .recovery-muscle { font-size: 13px; font-weight: 600; color: var(--text); text-transform: capitalize; margin-bottom: 3px; }
+        .recovery-sub { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+        .recovery-bar-track { height: 7px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 5px; border: 1px solid #1e1e1e; }
+        .recovery-bar-fill { height: 100%; border-radius: 4px; transition: width 0.9s cubic-bezier(0.4,0,0.2,1); }
+        .recovery-pct { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+        .recovery-badge { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 1px; text-align: right; line-height: 1; margin-bottom: 3px; }
+        .recovery-date { font-size: 10px; color: var(--muted); text-align: right; text-transform: uppercase; letter-spacing: 0.8px; }
+
+        /* ── STRENGTH PERCENTILE ── */
+        .bw-input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; padding: 14px 18px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; }
+        .bw-input-row label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; margin: 0; }
+        .bw-input-row input { max-width: 90px; padding: 6px 10px; font-size: 13px; }
+        .bw-input-row button { background: var(--accent); color: #0a0a0a; border: none; border-radius: 6px; padding: 7px 16px; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+        .bw-input-row button:hover { opacity: 0.85; }
+        .bw-hint { font-size: 11px; color: var(--muted); }
+
+        .percentile-rows { display: flex; flex-direction: column; gap: 0; }
+        .percentile-item { padding: 16px 0; border-bottom: 1px solid var(--border); }
+        .percentile-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .percentile-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+        .percentile-exercise { font-size: 14px; font-weight: 600; color: var(--text); }
+        .percentile-1rm { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--accent); letter-spacing: 0.5px; }
+        .percentile-bar { position: relative; height: 30px; display: flex; border-radius: 6px; overflow: visible; margin-bottom: 8px; gap: 2px; }
+        .percentile-zone {
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.8px; border-radius: 4px; overflow: hidden;
+            position: relative; transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+        .percentile-zone span { position: relative; z-index: 1; }
+        .percentile-indicator {
+            position: absolute; top: -4px; bottom: -4px;
+            width: 3px; border-radius: 2px;
+            background: #fff;
+            box-shadow: 0 0 10px #fff, 0 0 20px rgba(255,255,255,0.6);
+            transform: translateX(-50%);
+            transition: left 0.6s cubic-bezier(0.4,0,0.2,1);
+            z-index: 10;
+        }
+        .percentile-footer { display: flex; justify-content: space-between; align-items: center; }
+        .percentile-next { font-size: 11px; color: var(--muted); }
+        .percentile-level-badge { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1.5px; }
+
+        /* ── AI REPORT ── */
+        .report-trigger {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, rgba(200,241,53,0.06) 0%, rgba(79,195,247,0.04) 100%);
+            border: 1px solid rgba(200,241,53,0.2);
+            border-radius: 12px; cursor: pointer; transition: 0.2s;
+        }
+        .report-trigger:hover { border-color: rgba(200,241,53,0.4); background: linear-gradient(135deg, rgba(200,241,53,0.09) 0%, rgba(79,195,247,0.06) 100%); }
+        .report-trigger-left h3 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--accent); margin-bottom: 4px; }
+        .report-trigger-left p  { font-size: 12px; color: var(--muted); line-height: 1.5; max-width: 480px; }
+        .report-generate-btn {
+            background: var(--accent); color: #0a0a0a; border: none; border-radius: 8px;
+            padding: 12px 24px; font-family: 'Bebas Neue', sans-serif; font-size: 16px;
+            letter-spacing: 1.5px; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; flex-shrink: 0;
+        }
+        .report-generate-btn:hover   { opacity: 0.85; }
+        .report-generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        #report-output {
+            margin-top: 20px; display: none;
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 28px 32px;
+            font-size: 14px; line-height: 1.75; color: #ccc;
+        }
+        #report-output.visible { display: block; }
+        .report-section { margin-bottom: 22px; }
+        .report-section:last-child { margin-bottom: 0; }
+        .report-section-title {
+            font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px;
+            color: var(--accent); margin-bottom: 8px; text-transform: uppercase;
+        }
+        .report-section-body { color: #bbb; line-height: 1.8; }
+        .report-loading { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+        .report-loading-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+        .report-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .report-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
+        .report-meta { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+
+        /* ── REPORT HISTORY ── */
+        .report-history { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
+        .report-history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .report-history-title { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 1.5px; color: var(--muted); }
+        .report-history-list { display: flex; flex-direction: column; gap: 8px; }
+        .report-history-item {
+            background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+            overflow: hidden; transition: border-color 0.15s;
+        }
+        .report-history-item:hover { border-color: #333; }
+        .report-history-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; cursor: pointer; gap: 16px;
+        }
+        .report-history-date { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; }
+        .report-history-preview { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .report-history-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .report-expand-icon { font-size: 11px; color: var(--muted); transition: transform 0.2s; }
+        .report-expand-icon.open { transform: rotate(180deg); }
+        .report-history-delete { background: none; border: 1px solid transparent; color: var(--muted); padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: 0.15s; }
+        .report-history-delete:hover { border-color: var(--warning); color: var(--warning); }
+        .report-history-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+        .report-history-body.open { display: block; }
+
+        /* ── TOOLBAR ── */
+        .page-toolbar {
+            background: var(--card); border-bottom: 1px solid var(--border);
+            padding: 8px 40px; display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+        }
+        .toolbar-btn {
+            background: var(--bg); border: 1px solid var(--border); color: var(--muted);
+            padding: 6px 14px; border-radius: 6px; font-family: 'DM Sans', sans-serif;
+            font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.15s; white-space: nowrap;
+        }
+        .toolbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .toolbar-btn.primary-action {
+            background: rgba(200,241,53,0.08); border-color: rgba(200,241,53,0.3); color: var(--accent);
+        }
+        .toolbar-btn.primary-action:hover { background: rgba(200,241,53,0.14); border-color: var(--accent); }
+        .toolbar-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── COLLAPSIBLE CARDS ── */
+        .card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; user-select: none; margin-bottom: 16px;
+        }
+        .card-header h2 { margin-bottom: 0; flex: 1; }
+        .card-header:hover h2 { opacity: 0.8; }
+        .collapse-arrow {
+            color: var(--muted); font-size: 13px; flex-shrink: 0; margin-left: 10px;
+            transition: transform 0.25s ease;
+        }
+        .collapse-arrow.closed { transform: rotate(-90deg); }
+        .card-body {
+            overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.25s ease;
+            max-height: 4000px; opacity: 1;
+        }
+        .card-body.closed { max-height: 0; opacity: 0; }
     </style>
 </head>
 <body>
@@ -223,15 +313,26 @@
             <span class="stat-val" id="stat-volume">—</span>
             <span class="stat-label">lbs lifted</span>
         </div>
+        <div class="user-bar">
+            <span class="user-name">Logged in as <strong>{{ username }}</strong></span>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
     </div>
 </header>
 
-<div class="container">
+<div class="page-toolbar">
+    <button class="toolbar-btn" id="expand-all-btn" onclick="toggleAllSections()">Expand All</button>
+    <button class="toolbar-btn primary-action" id="pdf-btn" onclick="downloadPDF()">↓ Download PDF</button>
+</div>
 
-    <div>
+<div class="page">
+
+    <!-- ROW 1: Log + Anatomy + ACWR -->
+    <div class="row row-3">
+
+        <!-- Log Form -->
         <div class="card">
             <h2>Log Exercise</h2>
-
             <div class="form-group">
                 <label>Muscle Group</label>
                 <select id="muscle_group" onchange="updateExerciseSuggestions()">
@@ -244,326 +345,1107 @@
                     <option value="core">Core</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Exercise</label>
                 <input type="text" id="exercise" placeholder="e.g. Bench Press" list="exercise-suggestions" autocomplete="off" oninput="onExerciseChange()">
                 <datalist id="exercise-suggestions"></datalist>
             </div>
-
             <div class="set-input-row">
-                <div>
-                    <label>Reps</label>
-                    <input type="number" id="reps" placeholder="10" min="1" onkeydown="handleSetKey(event)">
-                </div>
-                <div>
-                    <label>Weight (lbs)</label>
-                    <input type="number" id="weight" placeholder="135" min="0" step="2.5" onkeydown="handleSetKey(event)">
-                </div>
+                <div><label>Reps</label><input type="number" id="reps" placeholder="10" min="1" onkeydown="handleSetKey(event)"></div>
+                <div><label>Weight (lbs)</label><input type="number" id="weight" placeholder="135" min="0" step="2.5" onkeydown="handleSetKey(event)"></div>
                 <button class="add-set" onclick="addSet()">+ Set</button>
             </div>
-
             <div id="sets-list"></div>
-
             <div class="date-row">
                 <label>Date</label>
                 <input type="date" id="date" onchange="updateLogButtonState()">
             </div>
-
             <button class="primary" id="log-btn" onclick="logWorkout()" disabled>Log Exercise</button>
             <div id="form-msg"></div>
         </div>
+
+        <!-- Anatomy SVG Heatmap -->
+        <div class="card" style="position:relative;" data-section="muscle-map">
+            <h2>Muscle Map</h2>
+            <div class="anatomy-wrap">
+                <div class="anatomy-toggle">
+                    <button class="toggle-btn active" id="btn-front" onclick="showView('front')">Front</button>
+                    <button class="toggle-btn"        id="btn-back"  onclick="showView('back')">Back</button>
+                </div>
+
+                <div id="anatomy-container" style="position:relative; width:100%; display:flex; justify-content:center;">
+                    <svg id="anatomy-svg" viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg">
+
+                        <!-- ── FRONT VIEW ── -->
+                        <g id="view-front">
+                            <ellipse cx="100" cy="28" rx="22" ry="26" fill="#1e1e1e" stroke="#333" stroke-width="1"/>
+                            <rect x="92" y="52" width="16" height="14" rx="4" fill="#1a1a1a"/>
+                            <path d="M68,66 L132,66 L138,160 L62,160 Z" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+
+                            <path id="f-chest" data-muscle="chest"
+                                d="M72,70 Q100,76 128,70 L132,110 Q100,118 68,110 Z" fill="#2a2a2a"/>
+
+                            <path id="f-shoulders"   data-muscle="shoulders"
+                                d="M52,68 Q68,62 72,78 L68,110 Q52,106 46,88 Z" fill="#2a2a2a"/>
+                            <path id="f-shoulders-r" data-muscle="shoulders"
+                                d="M148,68 Q132,62 128,78 L132,110 Q148,106 154,88 Z" fill="#2a2a2a"/>
+
+                            <path id="f-arms"   data-muscle="arms"
+                                d="M44,92 Q36,110 38,138 L52,140 L56,112 Z" fill="#2a2a2a"/>
+                            <path id="f-arms-r" data-muscle="arms"
+                                d="M156,92 Q164,110 162,138 L148,140 L144,112 Z" fill="#2a2a2a"/>
+
+                            <path d="M37,140 Q33,162 36,182 L50,182 L52,142 Z" fill="#1e1e1e" stroke="#333" stroke-width="0.5"/>
+                            <path d="M163,140 Q167,162 164,182 L150,182 L148,142 Z" fill="#1e1e1e" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="43"  cy="188" rx="8" ry="10" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="157" cy="188" rx="8" ry="10" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+
+                            <path id="f-core" data-muscle="core"
+                                d="M74,112 Q100,118 126,112 L130,158 Q100,164 70,158 Z" fill="#2a2a2a"/>
+                            <line x1="100" y1="114" x2="100" y2="160" stroke="#111" stroke-width="1.5"/>
+                            <line x1="72"  y1="128" x2="128" y2="128" stroke="#111" stroke-width="1"/>
+                            <line x1="71"  y1="142" x2="129" y2="142" stroke="#111" stroke-width="1"/>
+
+                            <path d="M62,160 L138,160 L140,186 L60,186 Z" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+
+                            <path id="f-legs"   data-muscle="legs"
+                                d="M64,188 L98,188 L96,280 L62,278 Z" fill="#2a2a2a"/>
+                            <path id="f-legs-r" data-muscle="legs"
+                                d="M136,188 L102,188 L104,280 L138,278 Z" fill="#2a2a2a"/>
+
+                            <ellipse cx="79"  cy="284" rx="14" ry="10" fill="#1e1e1e" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="121" cy="284" rx="14" ry="10" fill="#1e1e1e" stroke="#333" stroke-width="0.5"/>
+                            <path d="M66,292 L90,292 L88,360 L68,360 Z" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                            <path d="M134,292 L110,292 L112,360 L132,360 Z" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="79"  cy="366" rx="14" ry="8" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="121" cy="366" rx="14" ry="8" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                        </g>
+
+                        <!-- ── BACK VIEW ── -->
+                        <g id="view-back" style="display:none">
+                            <ellipse cx="100" cy="28" rx="22" ry="26" fill="#1e1e1e" stroke="#333" stroke-width="1"/>
+                            <rect x="92" y="52" width="16" height="14" rx="4" fill="#1a1a1a"/>
+                            <path d="M68,66 L132,66 L138,160 L62,160 Z" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+
+                            <path id="b-back" data-muscle="back"
+                                d="M70,68 Q100,74 130,68 L136,158 Q100,166 64,158 Z" fill="#2a2a2a"/>
+                            <line x1="100" y1="68"  x2="100" y2="158" stroke="#111" stroke-width="2"/>
+                            <line x1="80"  y1="70"  x2="100" y2="90"  stroke="#111" stroke-width="1"/>
+                            <line x1="120" y1="70"  x2="100" y2="90"  stroke="#111" stroke-width="1"/>
+
+                            <path id="b-shoulders"   data-muscle="shoulders"
+                                d="M50,68 Q68,60 70,78 L66,110 Q50,106 44,88 Z" fill="#2a2a2a"/>
+                            <path id="b-shoulders-r" data-muscle="shoulders"
+                                d="M150,68 Q132,60 130,78 L134,110 Q150,106 156,88 Z" fill="#2a2a2a"/>
+
+                            <path id="b-arms"   data-muscle="arms"
+                                d="M42,92 Q34,112 36,140 L50,140 L54,112 Z" fill="#2a2a2a"/>
+                            <path id="b-arms-r" data-muscle="arms"
+                                d="M158,92 Q166,112 164,140 L150,140 L146,112 Z" fill="#2a2a2a"/>
+
+                            <path d="M35,142 Q31,164 34,182 L48,182 L50,144 Z" fill="#1e1e1e" stroke="#333" stroke-width="0.5"/>
+                            <path d="M165,142 Q169,164 166,182 L152,182 L150,144 Z" fill="#1e1e1e" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="41"  cy="188" rx="8" ry="10" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="159" cy="188" rx="8" ry="10" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+
+                            <path id="b-core" data-muscle="core"
+                                d="M74,112 Q100,118 126,112 L130,158 Q100,164 70,158 Z" fill="#2a2a2a"/>
+
+                            <path d="M62,160 L138,160 L140,192 L60,192 Z" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+
+                            <path id="b-legs"   data-muscle="legs"
+                                d="M64,194 L98,194 L96,282 L62,280 Z" fill="#2a2a2a"/>
+                            <path id="b-legs-r" data-muscle="legs"
+                                d="M136,194 L102,194 L104,282 L138,280 Z" fill="#2a2a2a"/>
+
+                            <ellipse cx="79"  cy="286" rx="13" ry="8" fill="#1e1e1e" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="121" cy="286" rx="13" ry="8" fill="#1e1e1e" stroke="#333" stroke-width="0.5"/>
+                            <path d="M66,292 L90,292 L88,362 L68,362 Z" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                            <path d="M134,292 L110,292 L112,362 L132,362 Z" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="79"  cy="368" rx="14" ry="7" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                            <ellipse cx="121" cy="368" rx="14" ry="7" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+                        </g>
+                    </svg>
+
+                    <div class="muscle-tooltip" id="muscle-tooltip">
+                        <div class="tooltip-name" id="tooltip-name">—</div>
+                        <div class="tooltip-risk" id="tooltip-risk">Risk: —</div>
+                        <div style="font-size:11px;color:var(--muted);margin-top:2px;" id="tooltip-acwr">ACWR: —</div>
+                    </div>
+                </div>
+
+                <div class="risk-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#c8f135"></div>Optimal</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ffaa00"></div>Caution</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ff3b3b"></div>Danger</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#333"></div>No data</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACWR + Readiness -->
+        <div class="card" data-section="acwr-readiness">
+            <h2>Workload Ratio</h2>
+            <div class="acwr-list" id="acwr-list"><div class="empty">Log workouts to see ACWR</div></div>
+            <div style="margin-top:20px;">
+                <h2>Readiness</h2>
+                <div class="readiness-grid" id="readiness-grid">
+                    <div class="empty" style="grid-column:1/-1">No data yet</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="right">
-
-        <div class="card">
-            <h2>Smart Suggestions</h2>
-            <div id="suggestions-list">
-                <div class="empty">Log a workout to get suggestions</div>
+    <!-- ROW 2: Strength Forecast + Radar -->
+    <div class="row row-2">
+        <div class="card" data-section="strength-forecast">
+            <h2>Strength Forecast</h2>
+            <div class="form-group" style="margin-bottom:14px;">
+                <select id="forecast-exercise" onchange="loadForecast(this.value)"><option value="">Select exercise...</option></select>
+            </div>
+            <div id="forecast-wrap"><p class="empty">Select an exercise to see your strength projection</p></div>
+            <div id="pr-table-wrap" style="margin-top:16px;"></div>
+        </div>
+        <div class="card" data-section="volume-radar">
+            <h2>Volume Distribution</h2>
+            <div class="chart-container" style="height:260px;"><canvas id="radar-chart"></canvas></div>
+            <div style="margin-top:20px;">
+                <h2>Suggestions</h2>
+                <div id="suggestions-list"><div class="empty">Log a workout to get suggestions</div></div>
             </div>
         </div>
+    </div>
 
-        <div class="card">
+    <!-- ROW 3: Banister -->
+    <div class="row row-full">
+        <div class="card" data-section="banister">
+            <h2>Fitness vs Fatigue Model (Banister)</h2>
+            <div style="display:flex;gap:10px;margin-bottom:14px;align-items:flex-end;">
+                <div style="flex:1;max-width:220px;">
+                    <select id="banister-muscle" onchange="loadBanister(this.value)">
+                        <option value="">Select muscle group...</option>
+                        <option value="chest">Chest</option>
+                        <option value="back">Back</option>
+                        <option value="legs">Legs</option>
+                        <option value="shoulders">Shoulders</option>
+                        <option value="arms">Arms</option>
+                        <option value="core">Core</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                    <div style="display:flex;align-items:center;gap:6px;background:rgba(200,241,53,0.06);border:1px solid rgba(200,241,53,0.2);border-radius:6px;padding:5px 10px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#c8f135;flex-shrink:0;"></span>
+                        <span style="font-size:11px;color:#c8f135;font-weight:600;">Fitness</span>
+                        <span style="font-size:11px;color:var(--muted);">τ=45d · slow decay</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.2);border-radius:6px;padding:5px 10px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#ff6b35;flex-shrink:0;"></span>
+                        <span style="font-size:11px;color:#ff6b35;font-weight:600;">Fatigue</span>
+                        <span style="font-size:11px;color:var(--muted);">τ=15d · fast decay</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;background:rgba(79,195,247,0.06);border:1px solid rgba(79,195,247,0.2);border-radius:6px;padding:5px 10px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#4fc3f7;flex-shrink:0;"></span>
+                        <span style="font-size:11px;color:#4fc3f7;font-weight:600;">Performance</span>
+                        <span style="font-size:11px;color:var(--muted);">Fitness − Fatigue</span>
+                    </div>
+                </div>
+            </div>
+            <div id="banister-wrap"><p class="empty">Select a muscle group to visualize the model</p></div>
+        </div>
+    </div>
+
+    <!-- ROW: AI Training Report -->
+    <div class="row row-full">
+        <div class="card" data-section="ai-report">
+            <div class="report-trigger" onclick="generateReport()">
+                <div class="report-trigger-left">
+                    <h3>AI Training Report</h3>
+                    <p>Claude analyses your ACWR, injury risk, recovery forecast, and strength data — then writes a personalised coaching report telling you exactly what to do today.</p>
+                </div>
+                <button class="report-generate-btn" id="report-btn">Generate Report</button>
+            </div>
+            <div id="report-output"></div>
+
+            <div class="report-history" id="report-history" style="display:none;">
+                <div class="report-history-header">
+                    <span class="report-history-title">Past Reports</span>
+                    <span style="font-size:11px;color:var(--muted);" id="report-count"></span>
+                </div>
+                <div class="report-history-list" id="report-history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 4: Recovery Forecast -->
+    <div class="row row-full">
+        <div class="card" data-section="recovery">
+            <h2>Recovery Forecast <span style="font-size:11px;color:var(--muted);font-family:'DM Sans',sans-serif;letter-spacing:0;font-weight:400;">— fatigue clears 70% (Banister τ=15d)</span></h2>
+            <div class="recovery-grid" id="recovery-grid">
+                <div class="empty">Log workouts to see your recovery forecast</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 5: Strength Percentile -->
+    <div class="row row-full">
+        <div class="card" data-section="strength-percentile">
+            <h2>Strength Percentile Ranking <span style="font-size:11px;color:var(--muted);font-family:'DM Sans',sans-serif;letter-spacing:0;font-weight:400;">— ExRx standards, bodyweight-adjusted</span></h2>
+            <div class="bw-input-row">
+                <label>Your bodyweight</label>
+                <input type="number" id="bodyweight-input" placeholder="175" min="50" max="500" step="1">
+                <span style="font-size:13px;color:var(--muted);">lbs</span>
+                <button onclick="saveBodyweight()">Set</button>
+                <span class="bw-hint" id="bw-hint"></span>
+            </div>
+            <div class="percentile-rows" id="percentile-rows">
+                <div class="empty">Enter your bodyweight and log compound lifts to see your ranking</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 6: Progress + History -->
+    <div class="row row-2">
+        <div class="card" data-section="progress">
             <h2>Progress</h2>
-            <div class="form-group" style="margin-bottom: 14px;">
-                <select id="progress-exercise" onchange="loadProgress(this.value)">
-                    <option value="">Select an exercise...</option>
-                </select>
+            <div class="form-group" style="margin-bottom:14px;">
+                <select id="progress-exercise" onchange="loadProgress(this.value)"><option value="">Select an exercise...</option></select>
             </div>
-            <div id="chart-wrap">
-                <p class="empty">Select an exercise to see your progress</p>
-            </div>
+            <div id="chart-wrap"><p class="empty">Select an exercise to see your progress</p></div>
         </div>
-
-        <div class="card">
+        <div class="card" data-section="history">
             <h2>History</h2>
             <div class="table-wrap">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Exercise</th>
-                            <th>Group</th>
-                            <th>Sets</th>
-                        </tr>
-                    </thead>
-                    <tbody id="workout-table">
-                        <tr><td colspan="4" class="empty">No workouts logged yet</td></tr>
-                    </tbody>
+                    <thead><tr><th>Date</th><th>Exercise</th><th>Group</th><th>Sets</th></tr></thead>
+                    <tbody id="workout-table"><tr><td colspan="4" class="empty">No workouts logged yet</td></tr></tbody>
                 </table>
             </div>
         </div>
-
     </div>
+
 </div>
 
 <script>
-    const EXERCISES = {
-        chest:     ['Bench Press', 'Incline Bench Press', 'Dumbbell Fly', 'Push-up', 'Cable Crossover', 'Decline Press'],
-        back:      ['Pull-up', 'Barbell Row', 'Lat Pulldown', 'Seated Cable Row', 'Deadlift', 'Face Pull'],
-        legs:      ['Squat', 'Romanian Deadlift', 'Leg Press', 'Lunge', 'Leg Curl', 'Leg Extension', 'Calf Raise'],
-        shoulders: ['Overhead Press', 'Lateral Raise', 'Front Raise', 'Arnold Press', 'Upright Row', 'Rear Delt Fly'],
-        arms:      ['Bicep Curl', 'Tricep Pushdown', 'Hammer Curl', 'Skull Crusher', 'Dip', 'Concentration Curl'],
-        core:      ['Plank', 'Crunch', 'Leg Raise', 'Russian Twist', 'Ab Wheel', 'Cable Crunch']
+const PAGE_USERNAME = '{{ username }}';
+
+async function apiFetch(url, options = {}) {
+    const res = await fetch(url, options);
+    if (res.status === 401) { window.location.href = '/login'; return null; }
+    return res;
+}
+
+const EXERCISES = {
+    chest:     ['Bench Press','Incline Bench Press','Dumbbell Fly','Push-up','Cable Crossover','Decline Press'],
+    back:      ['Pull-up','Barbell Row','Lat Pulldown','Seated Cable Row','Deadlift','Face Pull'],
+    legs:      ['Squat','Romanian Deadlift','Leg Press','Lunge','Leg Curl','Leg Extension','Calf Raise'],
+    shoulders: ['Overhead Press','Lateral Raise','Front Raise','Arnold Press','Upright Row','Rear Delt Fly'],
+    arms:      ['Bicep Curl','Tricep Pushdown','Hammer Curl','Skull Crusher','Dip','Concentration Curl'],
+    core:      ['Plank','Crunch','Leg Raise','Russian Twist','Ab Wheel','Cable Crunch']
+};
+
+function riskColor(s) { if (s==null) return '#2a2a2a'; if (s<30) return '#c8f135'; if (s<60) return '#ffaa00'; return '#ff3b3b'; }
+function acwrColor(a) { if (!a) return '#555'; if (a<=1.3) return '#c8f135'; if (a<=1.5) return '#ffaa00'; return '#ff3b3b'; }
+function statusLabel(s) { return ({optimal:'Optimal',caution:'Caution',danger:'Danger!',undertrained:'Undertrained'})[s]||s; }
+
+const MUSCLE_IDS = {
+    chest:     ['f-chest'],
+    shoulders: ['f-shoulders','f-shoulders-r','b-shoulders','b-shoulders-r'],
+    arms:      ['f-arms','f-arms-r','b-arms','b-arms-r'],
+    core:      ['f-core','b-core'],
+    back:      ['b-back'],
+    legs:      ['f-legs','f-legs-r','b-legs','b-legs-r']
+};
+
+let pendingSets=[], progressChart=null, radarChart=null, forecastChart=null, banisterChart=null;
+let injuryData={}, acwrData={};
+
+document.getElementById('date').valueAsDate = new Date();
+// Sections open by default; all others start closed
+const OPEN_BY_DEFAULT = new Set(['muscle-map','acwr-readiness','recovery']);
+
+function initCollapsible() {
+    document.querySelectorAll('[data-section]').forEach(card => {
+        const id  = card.dataset.section;
+        const h2  = card.querySelector(':scope > h2');
+        if (!h2) return;
+
+        // Decide initial state: localStorage wins, then default
+        const stored   = localStorage.getItem(`fs_col_${id}`);
+        const isClosed = stored !== null ? stored === '1' : !OPEN_BY_DEFAULT.has(id);
+
+        // Build header wrapper
+        const header = document.createElement('div');
+        header.className = 'card-header';
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-expanded', String(!isClosed));
+        card.insertBefore(header, h2);
+        header.appendChild(h2);
+
+        const arrow = document.createElement('span');
+        arrow.className = 'collapse-arrow' + (isClosed ? ' closed' : '');
+        arrow.id        = `arr-${id}`;
+        arrow.textContent = '▾';
+        header.appendChild(arrow);
+
+        // Wrap remaining content
+        const body = document.createElement('div');
+        body.className = 'card-body' + (isClosed ? ' closed' : '');
+        body.id        = `cbody-${id}`;
+        while (card.children.length > 1) body.appendChild(card.children[1]);
+        card.appendChild(body);
+
+        header.addEventListener('click', () => toggleSection(id));
+    });
+}
+
+function toggleSection(id) {
+    const body   = document.getElementById(`cbody-${id}`);
+    const arrow  = document.getElementById(`arr-${id}`);
+    const header = arrow?.closest('.card-header');
+    if (!body) return;
+    const closing = !body.classList.contains('closed');
+    body.classList.toggle('closed', closing);
+    arrow?.classList.toggle('closed', closing);
+    header?.setAttribute('aria-expanded', String(!closing));
+    localStorage.setItem(`fs_col_${id}`, closing ? '1' : '0');
+    updateExpandBtn();
+}
+
+// ── EXPAND / COLLAPSE ALL ─────────────────────────────────────────────────
+function updateExpandBtn() {
+    const sections = [...document.querySelectorAll('[data-section]')];
+    const allOpen  = sections.every(c => !document.getElementById(`cbody-${c.dataset.section}`)?.classList.contains('closed'));
+    const btn = document.getElementById('expand-all-btn');
+    if (btn) btn.textContent = allOpen ? 'Collapse All' : 'Expand All';
+}
+
+function toggleAllSections() {
+    const sections = [...document.querySelectorAll('[data-section]')];
+    const allOpen  = sections.every(c => !document.getElementById(`cbody-${c.dataset.section}`)?.classList.contains('closed'));
+    sections.forEach(card => {
+        const id   = card.dataset.section;
+        const body = document.getElementById(`cbody-${id}`);
+        const arr  = document.getElementById(`arr-${id}`);
+        if (!body) return;
+        body.classList.toggle('closed', !allOpen ? false : true);
+        arr?.classList.toggle('closed',  !allOpen ? false : true);
+        localStorage.setItem(`fs_col_${id}`, !allOpen ? '0' : '1');
+    });
+    updateExpandBtn();
+}
+
+// ── PDF DOWNLOAD ──────────────────────────────────────────────────────────
+async function downloadPDF() {
+    const btn = document.getElementById('pdf-btn');
+    btn.textContent = 'Generating…'; btn.disabled = true;
+
+    // Fetch all data in parallel
+    const [sRes, rcRes, acRes, ormRes, wkRes, rpRes] = await Promise.all([
+        apiFetch('/stats'), apiFetch('/analytics/recovery_forecast'),
+        apiFetch('/analytics/acwr'), apiFetch('/analytics/all_1rm'),
+        apiFetch('/get_workouts'), apiFetch('/reports'),
+    ]);
+    if (!sRes) { btn.textContent = 'Download PDF'; btn.disabled = false; return; }
+
+    const stats    = await sRes.json();
+    const recovery = await rcRes.json();
+    const acwr     = await acRes.json();
+    const orm1rm   = await ormRes.json();
+    const { workouts } = await wkRes.json();
+    const reports  = await rpRes.json();
+
+    const { jsPDF } = window.jspdf;
+    const doc  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const W    = 210, M = 16, CW = W - M * 2;
+    let y      = 0;
+
+    const C_ACCENT = [200, 241, 53];
+    const C_TEXT   = [25,  25,  25];
+    const C_MUTED  = [120, 120, 120];
+    const C_HEAD   = [18,  18,  18];
+
+    // ── Header band ──
+    doc.setFillColor(...C_HEAD);
+    doc.rect(0, 0, W, 30, 'F');
+    doc.setFillColor(...C_ACCENT);
+    doc.rect(0, 30, W, 1.2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.setTextColor(...C_ACCENT);
+    doc.text('FITSCRIPT', M, 18);
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(180, 180, 180);
+    doc.text(`Training Report — ${PAGE_USERNAME}`, M, 25);
+    doc.text(new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }), W - M, 25, { align: 'right' });
+
+    y = 42;
+
+    // ── Summary stats ──
+    const bw = parseFloat(localStorage.getItem('fs_bw') || '0');
+    const statItems = [
+        [stats.streak,                              'Day Streak'],
+        [stats.total_sessions,                      'Sessions'],
+        [Number(stats.total_volume).toLocaleString(),'Lbs Lifted'],
+        [bw ? `${bw} lbs` : '—',                   'Bodyweight'],
+    ];
+    const bxW = (CW - 12) / 4;
+    statItems.forEach(([val, lbl], i) => {
+        const x = M + i * (bxW + 4);
+        doc.setFillColor(245, 245, 245);
+        doc.roundedRect(x, y, bxW, 18, 2, 2, 'F');
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
+        doc.setTextColor(...C_TEXT);
+        doc.text(String(val), x + bxW / 2, y + 10, { align: 'center' });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        doc.setTextColor(...C_MUTED);
+        doc.text(lbl.toUpperCase(), x + bxW / 2, y + 15.5, { align: 'center' });
+    });
+    y += 26;
+
+    // Section title helper
+    const section = (title, yy) => {
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
+        doc.setTextColor(...C_TEXT);
+        doc.text(title, M, yy);
+        doc.setDrawColor(...C_ACCENT); doc.setLineWidth(0.4);
+        doc.line(M, yy + 2, M + CW, yy + 2);
+        return yy + 8;
     };
 
-    let pendingSets = [];  // [{reps, weight}]
-    let progressChart = null;
+    const tableOpts = (head, body, startY) => ({
+        startY, head, body: body.length ? body : [Array(head[0].length).fill('—')],
+        margin: { left: M, right: M },
+        styles: { fontSize: 8.5, cellPadding: 2.8, textColor: C_TEXT },
+        headStyles: { fillColor: C_HEAD, textColor: C_ACCENT, fontStyle: 'bold', fontSize: 8 },
+        alternateRowStyles: { fillColor: [248, 248, 248] },
+        theme: 'grid',
+    });
 
-    document.getElementById('date').valueAsDate = new Date();
+    // ── Recovery Forecast ──
+    y = section('RECOVERY FORECAST', y);
+    doc.autoTable(tableOpts(
+        [['Muscle','% Cleared','Ready','Days Away','Last Trained']],
+        Object.entries(recovery).map(([m, d]) => [
+            m.charAt(0).toUpperCase() + m.slice(1),
+            `${d.pct_recovered}%`, d.ready_label,
+            d.days_until_ready === 0 ? 'Ready ✓' : `${d.days_until_ready}d`,
+            `${d.days_since}d ago`,
+        ]),
+        y
+    ));
+    y = doc.lastAutoTable.finalY + 10;
 
-    window.onload = () => { loadWorkouts(); loadSuggestions(); loadStats(); };
+    // ── ACWR ──
+    if (y > 230) { doc.addPage(); y = 18; }
+    y = section('ACUTE : CHRONIC WORKLOAD RATIOS', y);
+    doc.autoTable(tableOpts(
+        [['Muscle','ACWR','Status','7-Day Load (lbs)','28-Day Load (lbs)']],
+        Object.entries(acwr).map(([m, d]) => [
+            m.charAt(0).toUpperCase() + m.slice(1),
+            d.acwr, d.status.charAt(0).toUpperCase() + d.status.slice(1),
+            Number(d.acute_load).toLocaleString(), Number(d.chronic_load).toLocaleString(),
+        ]),
+        y
+    ));
+    y = doc.lastAutoTable.finalY + 10;
 
-    function updateLogButtonState() {
-        const hasSets = pendingSets.length > 0;
-        const exercise = document.getElementById('exercise').value.trim();
-        const muscle_group = document.getElementById('muscle_group').value;
-        const date = document.getElementById('date').value;
-        const ok = hasSets && exercise.length >= 2 && !!muscle_group && !!date;
-        document.getElementById('log-btn').disabled = !ok;
-    }
-
-    function updateExerciseSuggestions() {
-        const group = document.getElementById('muscle_group').value;
-        const datalist = document.getElementById('exercise-suggestions');
-        datalist.innerHTML = (EXERCISES[group] || []).map(e => `<option value="${e}">`).join('');
-        document.getElementById('exercise').value = '';
-        pendingSets = [];
-        renderSets();
-        document.getElementById('exercise').focus();
-        updateLogButtonState();
-    }
-
-    function onExerciseChange() {
-        // Clear sets when switching exercises mid-session
-        if (pendingSets.length) {
-            pendingSets = [];
-            renderSets();
-        }
-        updateLogButtonState();
-    }
-
-    function handleSetKey(e) {
-        if (e.key === 'Enter') addSet();
-    }
-
-    function addSet() {
-        const reps = parseInt(document.getElementById('reps').value);
-        const weight = parseFloat(document.getElementById('weight').value);
-        if (!reps || isNaN(weight) || weight < 0) {
-            flashMsg('Enter reps and weight first.', 'var(--warning)');
-            return;
-        }
-        pendingSets.push({ reps, weight });
-        renderSets();
-        // Keep weight, clear reps — common to do same weight next set
-        document.getElementById('reps').value = '';
-        document.getElementById('reps').focus();
-    }
-
-    function removeSet(i) {
-        pendingSets.splice(i, 1);
-        renderSets();
-    }
-
-    function renderSets() {
-        const container = document.getElementById('sets-list');
-        updateLogButtonState();
-
-        if (!pendingSets.length) { container.innerHTML = ''; return; }
-
-        container.innerHTML = pendingSets.map((s, i) => `
-            <div class="set-item">
-                <span><strong>Set ${i + 1}</strong> &nbsp; ${s.reps} reps &nbsp;@&nbsp; ${s.weight} lbs</span>
-                <button class="set-remove" onclick="removeSet(${i})" title="Remove">×</button>
-            </div>
-        `).join('');
-    }
-
-    async function logWorkout() {
-        if (!pendingSets.length) return;
-        const exercise = document.getElementById('exercise').value.trim();
-        const muscle_group = document.getElementById('muscle_group').value;
-        const date = document.getElementById('date').value;
-
-        if (!exercise || !muscle_group || !date) {
-            flashMsg('Fill in muscle group, exercise and date.', 'var(--warning)');
-            return;
-        }
-        if (exercise.length < 2) {
-            flashMsg('Exercise name is too short.', 'var(--warning)');
-            return;
-        }
-
-        const res = await fetch('/log_workout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ exercise, muscle_group, date, sets: pendingSets })
-        });
-        const result = await res.json();
-
-        if (res.ok) {
-            flashMsg(result.is_pr ? 'New personal record!' : `${pendingSets.length} set${pendingSets.length > 1 ? 's' : ''} logged.`,
-                     result.is_pr ? 'var(--pr)' : 'var(--accent)');
-            const loggedExercise = exercise;
-            pendingSets = [];
-            renderSets();
-            document.getElementById('exercise').value = '';
-            document.getElementById('reps').value = '';
-            document.getElementById('weight').value = '';
-            document.getElementById('exercise').focus();
-
-            loadWorkouts().then(() => {
-                const sel = document.getElementById('progress-exercise');
-                if ([...sel.options].some(o => o.value === loggedExercise)) {
-                    sel.value = loggedExercise;
-                    loadProgress(loggedExercise);
-                }
-            });
-            loadSuggestions();
-            loadStats();
-        } else {
-            flashMsg(result.error || 'Something went wrong.', 'var(--warning)');
-        }
-    }
-
-    function flashMsg(text, color) {
-        const el = document.getElementById('form-msg');
-        el.style.color = color;
-        el.textContent = text;
-        setTimeout(() => { el.textContent = ''; }, 3000);
-    }
-
-    async function loadWorkouts() {
-        const res = await fetch('/get_workouts');
-        const { workouts } = await res.json();
-        const tbody = document.getElementById('workout-table');
-
-        if (!workouts.length) {
-            tbody.innerHTML = '<tr><td colspan="4" class="empty">No workouts logged yet</td></tr>';
-            document.getElementById('progress-exercise').innerHTML = '<option value="">Select an exercise...</option>';
-            return;
-        }
-
-        // Find max weight per exercise for PR marking
-        const maxWeights = {};
-        for (const w of workouts) {
-            const k = w.exercise.toLowerCase();
-            if (!maxWeights[k] || w.weight > maxWeights[k]) maxWeights[k] = w.weight;
-        }
-
-        // Group by date → exercise
-        const grouped = {};
-        for (const w of workouts) {
-            const key = `${w.date}||${w.exercise}||${w.muscle_group}`;
-            if (!grouped[key]) grouped[key] = { date: w.date, exercise: w.exercise, muscle_group: w.muscle_group, sets: [] };
-            grouped[key].sets.push({ id: w.id, reps: w.reps, weight: w.weight });
-        }
-
-        const rows = Object.values(grouped).sort((a, b) => b.date.localeCompare(a.date) || a.exercise.localeCompare(b.exercise));
-
-        tbody.innerHTML = rows.map(g => {
-            const isPR = g.sets.some(s => s.weight === maxWeights[g.exercise.toLowerCase()]);
-            const setsHtml = g.sets.map((s, i) => `
-                <div class="set-line">
-                    <span>Set ${i + 1}: <strong>${s.reps} reps @ ${s.weight} lbs</strong></span>
-                    <button class="delete-btn" onclick="deleteWorkout(${s.id})">×</button>
-                </div>
-            `).join('');
-            return `<tr>
-                <td style="white-space:nowrap">${g.date}</td>
-                <td>${g.exercise}${isPR ? '<span class="pr-badge">PR</span>' : ''}
-                    <div class="sets-detail">${setsHtml}</div>
-                </td>
-                <td style="white-space:nowrap">${g.muscle_group}</td>
-                <td>${g.sets.length}</td>
-            </tr>`;
-        }).join('');
-
-        // Update progress dropdown
-        const exercises = [...new Set(workouts.map(w => w.exercise))];
-        const sel = document.getElementById('progress-exercise');
-        const cur = sel.value;
-        sel.innerHTML = '<option value="">Select an exercise...</option>' + exercises.map(e => `<option value="${e}">${e}</option>`).join('');
-        if (cur && exercises.includes(cur)) sel.value = cur;
-    }
-
-    async function loadSuggestions() {
-        const res = await fetch('/suggestions');
-        const data = await res.json();
-        document.getElementById('suggestions-list').innerHTML = data.map(s =>
-            `<div class="suggestion ${s.type}">${s.message}</div>`
-        ).join('');
-    }
-
-    async function loadStats() {
-        const res = await fetch('/stats');
-        const data = await res.json();
-        document.getElementById('stat-streak').textContent = data.streak;
-        document.getElementById('stat-sessions').textContent = data.total_sessions;
-        document.getElementById('stat-volume').textContent = new Intl.NumberFormat().format(data.total_volume);
-    }
-
-    async function loadProgress(exercise) {
-        const wrap = document.getElementById('chart-wrap');
-        if (!exercise) {
-            wrap.innerHTML = '<p class="empty">Select an exercise to see your progress</p>';
-            if (progressChart) { progressChart.destroy(); progressChart = null; }
-            return;
-        }
-        const res = await fetch(`/progress?exercise=${encodeURIComponent(exercise)}`);
-        const data = await res.json();
-        if (data.length < 2) {
-            wrap.innerHTML = '<p class="empty">Need at least 2 sessions to show progress</p>';
-            if (progressChart) { progressChart.destroy(); progressChart = null; }
-            return;
-        }
-        wrap.innerHTML = '<canvas id="progress-chart" height="110"></canvas>';
-        if (progressChart) progressChart.destroy();
-        progressChart = new Chart(document.getElementById('progress-chart').getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: data.map(d => d.date),
-                datasets: [{ data: data.map(d => d.weight), borderColor: '#c8f135', backgroundColor: 'rgba(200,241,53,0.07)', pointBackgroundColor: '#c8f135', pointRadius: 4, tension: 0.35, fill: true }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { ticks: { color: '#666', font: { size: 11 } }, grid: { color: '#1e1e1e' } },
-                    y: { ticks: { color: '#666', font: { size: 11 } }, grid: { color: '#1e1e1e' } }
-                }
+    // ── Strength Estimates ──
+    if (y > 220) { doc.addPage(); y = 18; }
+    y = section('ESTIMATED 1RM & STRENGTH LEVEL', y);
+    const STDS = {
+        'bench press':[0.50,0.75,1.00,1.50,2.00], 'squat':[0.75,1.25,1.50,2.00,2.50],
+        'deadlift':[1.00,1.50,2.00,2.50,3.00], 'overhead press':[0.35,0.55,0.75,1.10,1.40],
+        'barbell row':[0.50,0.65,0.90,1.20,1.50], 'romanian deadlift':[0.75,1.00,1.50,2.00,2.50],
+    };
+    const LVLS = ['Untrained','Novice','Intermediate','Advanced','Elite'];
+    doc.autoTable(tableOpts(
+        [['Exercise','Est. 1RM','Level','Next Target']],
+        Object.entries(orm1rm).map(([ex, orm]) => {
+            const key = Object.keys(STDS).find(k => ex.toLowerCase().includes(k));
+            let level = '', next = '';
+            if (key && bw) {
+                const ratio = orm / bw;
+                let lvl = 0;
+                STDS[key].forEach((s, i) => { if (ratio >= s) lvl = i; });
+                level = LVLS[lvl];
+                next  = STDS[key][lvl + 1] ? `${Math.round(STDS[key][lvl + 1] * bw)} lbs → ${LVLS[lvl+1]}` : '🏆 Elite';
             }
-        });
+            return [ex, `${orm} lbs`, level || '—', next || (bw ? '—' : 'Enter bodyweight')];
+        }),
+        y
+    ));
+    y = doc.lastAutoTable.finalY + 10;
+
+    // ── Recent Workouts ──
+    if (workouts.length) {
+        if (y > 210) { doc.addPage(); y = 18; }
+        y = section('RECENT WORKOUTS (LAST 14 DAYS)', y);
+        const cutoff = Date.now() - 14 * 86400000;
+        const recent = workouts
+            .filter(w => new Date(w.date).getTime() >= cutoff)
+            .slice(0, 30);
+        doc.autoTable(tableOpts(
+            [['Date','Exercise','Muscle Group','Reps','Weight (lbs)']],
+            recent.map(w => [w.date, w.exercise, w.muscle_group, w.reps, w.weight]),
+            y
+        ));
+        y = doc.lastAutoTable.finalY + 10;
     }
 
-    async function deleteWorkout(id) {
-        await fetch(`/delete_workout/${id}`, { method: 'DELETE' });
-        loadWorkouts();
-        loadSuggestions();
-        loadStats();
+    // ── Latest AI Report ──
+    if (reports.length) {
+        doc.addPage(); y = 18;
+        y = section('LATEST AI COACHING REPORT', y);
+        const r = reports[0];
+        doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5);
+        doc.setTextColor(...C_MUTED);
+        doc.text(`Generated: ${new Date(r.generated_at + 'Z').toLocaleString()}`, M, y);
+        y += 6;
+        const clean = r.report_text.replace(/\*\*/g, '').trim();
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+        doc.setTextColor(...C_TEXT);
+        const lines = doc.splitTextToSize(clean, CW);
+        doc.text(lines, M, y);
     }
+
+    // ── Footer on every page ──
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+        doc.setPage(i);
+        doc.setFillColor(240, 240, 240);
+        doc.rect(0, 287, W, 10, 'F');
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        doc.setTextColor(...C_MUTED);
+        doc.text(`FitScript Training Report · ${PAGE_USERNAME} · ${new Date().toLocaleDateString()}`, M, 293);
+        doc.text(`${i} / ${pages}`, W - M, 293, { align: 'right' });
+    }
+
+    doc.save(`fitscript-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+    btn.textContent = 'Download PDF'; btn.disabled = false;
+}
+
+window.onload = () => { initCollapsible(); updateExpandBtn(); loadWorkouts(); loadSuggestions(); loadStats(); loadAnatomy(); loadRadar(); loadRecoveryForecast(); loadStrengthPercentile(); loadReportHistory(); };
+
+// ── VIEW TOGGLE ──
+function showView(v) {
+    document.getElementById('view-front').style.display = v==='front' ? '' : 'none';
+    document.getElementById('view-back').style.display  = v==='back'  ? '' : 'none';
+    document.getElementById('btn-front').classList.toggle('active', v==='front');
+    document.getElementById('btn-back').classList.toggle('active',  v==='back');
+}
+
+// ── FORM ──
+function updateLogButtonState() {
+    document.getElementById('log-btn').disabled = !(
+        pendingSets.length > 0 &&
+        document.getElementById('exercise').value.trim().length >= 2 &&
+        document.getElementById('muscle_group').value &&
+        document.getElementById('date').value
+    );
+}
+function updateExerciseSuggestions() {
+    const g = document.getElementById('muscle_group').value;
+    document.getElementById('exercise-suggestions').innerHTML = (EXERCISES[g]||[]).map(e=>`<option value="${e}">`).join('');
+    document.getElementById('exercise').value = ''; pendingSets=[]; renderSets();
+    document.getElementById('exercise').focus(); updateLogButtonState();
+}
+function onExerciseChange() { if (pendingSets.length) { pendingSets=[]; renderSets(); } updateLogButtonState(); }
+function handleSetKey(e) { if (e.key==='Enter') addSet(); }
+function addSet() {
+    const reps=parseInt(document.getElementById('reps').value), weight=parseFloat(document.getElementById('weight').value);
+    if (!reps||isNaN(weight)||weight<0) { flashMsg('Enter reps and weight first.','var(--warning)'); return; }
+    pendingSets.push({reps,weight}); renderSets();
+    document.getElementById('reps').value=''; document.getElementById('reps').focus();
+}
+function removeSet(i) { pendingSets.splice(i,1); renderSets(); }
+function renderSets() {
+    updateLogButtonState();
+    document.getElementById('sets-list').innerHTML = pendingSets.map((s,i)=>
+        `<div class="set-item"><span><strong>Set ${i+1}</strong> &nbsp;${s.reps} reps &nbsp;@&nbsp; ${s.weight} lbs</span><button class="set-remove" onclick="removeSet(${i})">×</button></div>`
+    ).join('');
+}
+async function logWorkout() {
+    if (!pendingSets.length) return;
+    const exercise=document.getElementById('exercise').value.trim();
+    const muscle_group=document.getElementById('muscle_group').value;
+    const date=document.getElementById('date').value;
+    if (!exercise||!muscle_group||!date) { flashMsg('Fill in all fields.','var(--warning)'); return; }
+    const res=await apiFetch('/log_workout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({exercise,muscle_group,date,sets:pendingSets})});
+    if (!res) return;
+    const result=await res.json();
+    if (res.ok) {
+        flashMsg(result.is_pr?'New personal record!':`${pendingSets.length} set(s) logged.`, result.is_pr?'var(--pr)':'var(--accent)');
+        const loggedEx=exercise; pendingSets=[]; renderSets();
+        ['exercise','reps','weight'].forEach(id=>document.getElementById(id).value='');
+        document.getElementById('exercise').focus();
+        await loadWorkouts(); loadSuggestions(); loadStats(); loadAnatomy(); loadRadar(); loadRecoveryForecast(); loadStrengthPercentile();
+        const sel=document.getElementById('forecast-exercise');
+        if ([...sel.options].some(o=>o.value===loggedEx)) { sel.value=loggedEx; loadForecast(loggedEx); }
+    } else { flashMsg(result.error||'Something went wrong.','var(--warning)'); }
+}
+function flashMsg(text,color) {
+    const el=document.getElementById('form-msg'); el.style.color=color; el.textContent=text;
+    setTimeout(()=>el.textContent='',3000);
+}
+
+// ── WORKOUTS ──
+async function loadWorkouts() {
+    const res=await apiFetch('/get_workouts'); if (!res) return;
+    const {workouts}=await res.json();
+    const tbody=document.getElementById('workout-table');
+    if (!workouts.length) {
+        tbody.innerHTML='<tr><td colspan="4" class="empty">No workouts logged yet</td></tr>';
+        ['progress-exercise','forecast-exercise'].forEach(id=>document.getElementById(id).innerHTML='<option value="">Select an exercise...</option>');
+        return;
+    }
+    const maxW={};
+    for (const w of workouts) { const k=w.exercise.toLowerCase(); if (!maxW[k]||w.weight>maxW[k]) maxW[k]=w.weight; }
+    const grouped={};
+    for (const w of workouts) {
+        const key=`${w.date}||${w.exercise}||${w.muscle_group}`;
+        if (!grouped[key]) grouped[key]={date:w.date,exercise:w.exercise,muscle_group:w.muscle_group,sets:[]};
+        grouped[key].sets.push({id:w.id,reps:w.reps,weight:w.weight});
+    }
+    const rows=Object.values(grouped).sort((a,b)=>b.date.localeCompare(a.date));
+    tbody.innerHTML=rows.map(g=>{
+        const isPR=g.sets.some(s=>s.weight===maxW[g.exercise.toLowerCase()]);
+        const setsHtml=g.sets.map((s,i)=>`<div class="set-line"><span>Set ${i+1}: <strong>${s.reps} reps @ ${s.weight} lbs</strong></span><button class="delete-btn" onclick="deleteWorkout(${s.id})">×</button></div>`).join('');
+        return `<tr><td style="white-space:nowrap">${g.date}</td><td>${g.exercise}${isPR?'<span class="pr-badge">PR</span>':''}<div class="sets-detail">${setsHtml}</div></td><td style="white-space:nowrap">${g.muscle_group}</td><td>${g.sets.length}</td></tr>`;
+    }).join('');
+    const exercises=[...new Set(workouts.map(w=>w.exercise))];
+    ['progress-exercise','forecast-exercise'].forEach(id=>{
+        const sel=document.getElementById(id); const cur=sel.value;
+        sel.innerHTML='<option value="">Select an exercise...</option>'+exercises.map(e=>`<option value="${e}">${e}</option>`).join('');
+        if (cur&&exercises.includes(cur)) sel.value=cur;
+    });
+}
+async function deleteWorkout(id) {
+    await apiFetch(`/delete_workout/${id}`,{method:'DELETE'});
+    loadWorkouts(); loadSuggestions(); loadStats(); loadAnatomy(); loadRadar();
+}
+
+// ── STATS ──
+async function loadStats() {
+    const res=await apiFetch('/stats'); if (!res) return;
+    const d=await res.json();
+    document.getElementById('stat-streak').textContent=d.streak;
+    document.getElementById('stat-sessions').textContent=d.total_sessions;
+    document.getElementById('stat-volume').textContent=new Intl.NumberFormat().format(d.total_volume);
+}
+
+// ── SUGGESTIONS ──
+async function loadSuggestions() {
+    const res=await apiFetch('/suggestions'); if (!res) return;
+    const data=await res.json();
+    document.getElementById('suggestions-list').innerHTML=data.map(s=>`<div class="suggestion ${s.type}">${s.message}</div>`).join('');
+}
+
+// ── ANATOMY ──
+function showView(v) {
+    document.getElementById('view-front').style.display = v==='front' ? '' : 'none';
+    document.getElementById('view-back').style.display  = v==='back'  ? '' : 'none';
+    document.getElementById('btn-front').classList.toggle('active', v==='front');
+    document.getElementById('btn-back').classList.toggle('active',  v==='back');
+}
+
+async function loadAnatomy() {
+    const [r1,r2]=await Promise.all([apiFetch('/analytics/injury_risk'),apiFetch('/analytics/acwr')]);
+    if (!r1||!r2) return;
+    injuryData=await r1.json();
+    acwrData=await r2.json();
+
+    for (const [muscle, ids] of Object.entries(MUSCLE_IDS)) {
+        const risk=injuryData[muscle];
+        const col=riskColor(risk ? risk.risk_score : null);
+        const glow=risk ? `drop-shadow(0 0 6px ${col}99)` : 'none';
+        for (const id of ids) {
+            const el=document.getElementById(id);
+            if (el) { el.style.fill=col; el.style.filter=glow; }
+        }
+    }
+
+    renderAcwrBars(acwrData);
+    renderReadiness(injuryData);
+    bindTooltips();
+}
+
+function bindTooltips() {
+    const tooltip=document.getElementById('muscle-tooltip');
+    document.querySelectorAll('#anatomy-svg [data-muscle]').forEach(el => {
+        el.onmouseenter = (e) => {
+            const muscle=el.dataset.muscle;
+            const risk=injuryData[muscle];
+            const acwr=acwrData[muscle];
+            document.getElementById('tooltip-name').textContent=muscle.charAt(0).toUpperCase()+muscle.slice(1);
+            document.getElementById('tooltip-risk').innerHTML=risk
+                ? `Risk: <strong style="color:${riskColor(risk.risk_score)}">${risk.risk_score}/100 — ${statusLabel(risk.status)}</strong>`
+                : 'Risk: <span style="color:var(--muted)">No data yet</span>';
+            document.getElementById('tooltip-acwr').textContent=acwr
+                ? `ACWR: ${acwr.acwr}  ·  ${acwr.acute_load.toLocaleString()} / ${acwr.chronic_load.toLocaleString()} lbs`
+                : 'ACWR: No data yet';
+            tooltip.classList.add('visible');
+            tooltip.style.top=(e.offsetY+12)+'px';
+            tooltip.style.left=Math.min(e.offsetX+12,150)+'px';
+        };
+        el.onmouseleave = () => tooltip.classList.remove('visible');
+    });
+}
+
+function renderAcwrBars(data) {
+    const c=document.getElementById('acwr-list'), muscles=Object.keys(data);
+    if (!muscles.length) { c.innerHTML='<div class="empty">Log workouts to see ACWR</div>'; return; }
+    c.innerHTML=muscles.map(m=>{
+        const d=data[m]; const pct=Math.min(100,(d.acwr/2.5)*100); const col=acwrColor(d.acwr);
+        return `<div><div class="acwr-label"><span class="acwr-muscle">${m}</span><span class="acwr-val" style="color:${col}">${d.acwr}</span></div><div class="acwr-track"><div class="acwr-fill" style="width:${pct}%;background:${col}"></div></div></div>`;
+    }).join('');
+}
+
+function renderReadiness(data) {
+    const g=document.getElementById('readiness-grid'), muscles=Object.keys(data);
+    if (!muscles.length) { g.innerHTML='<div class="empty" style="grid-column:1/-1">No data yet</div>'; return; }
+    g.innerHTML=muscles.map(m=>{
+        const d=data[m]; const ready=Math.max(0,100-d.risk_score); const col=riskColor(d.risk_score);
+        return `<div class="readiness-cell"><div class="muscle-name">${m}</div><div class="score-val" style="color:${col}">${ready}</div><div class="score-status" style="color:${col}">${statusLabel(d.status)}</div></div>`;
+    }).join('');
+}
+
+// ── RADAR ──
+async function loadRadar() {
+    const res=await apiFetch('/analytics/radar'); if (!res) return;
+    const data=await res.json();
+    const labels=['Chest','Back','Legs','Shoulders','Arms','Core'], keys=['chest','back','legs','shoulders','arms','core'];
+    const ctx=document.getElementById('radar-chart').getContext('2d');
+    if (radarChart) radarChart.destroy();
+    radarChart=new Chart(ctx,{
+        type:'radar',
+        data:{labels,datasets:[{data:keys.map(k=>data[k]||0),borderColor:'#c8f135',backgroundColor:'rgba(200,241,53,0.08)',pointBackgroundColor:'#c8f135',pointRadius:4,borderWidth:2}]},
+        options:{plugins:{legend:{display:false}},scales:{r:{ticks:{color:'#555',backdropColor:'transparent',font:{size:10}},grid:{color:'#222'},pointLabels:{color:'#888',font:{size:11}},angleLines:{color:'#222'}}}}
+    });
+}
+
+// ── FORECAST ──
+async function loadForecast(exercise) {
+    const wrap=document.getElementById('forecast-wrap'), prWrap=document.getElementById('pr-table-wrap');
+    if (!exercise) { wrap.innerHTML='<p class="empty">Select an exercise to see your strength projection</p>'; prWrap.innerHTML=''; if(forecastChart){forecastChart.destroy();forecastChart=null;} return; }
+    const res=await apiFetch(`/analytics/predict?exercise=${encodeURIComponent(exercise)}`); if (!res) return;
+    if (!res.ok) { wrap.innerHTML='<p class="empty">Need at least 2 sessions to generate a forecast</p>'; prWrap.innerHTML=''; return; }
+    const data=await res.json(); const reg=data.regression;
+    const actualDates=reg.actual.map(p=>p.date), actualOrm=reg.actual.map(p=>p.orm), fittedOrm=reg.actual.map(p=>p.fitted);
+    const predDates=reg.predictions.map(p=>p.date), predVals=reg.predictions.map(p=>p.predicted_1rm);
+    const upperVals=reg.predictions.map(p=>p.upper), lowerVals=reg.predictions.map(p=>p.lower);
+    const nA=actualDates.length;
+    const predFull=[...Array(nA-1).fill(null),fittedOrm[fittedOrm.length-1],...predVals];
+    const upperFull=[...Array(nA-1).fill(null),fittedOrm[fittedOrm.length-1],...upperVals];
+    const lowerFull=[...Array(nA-1).fill(null),fittedOrm[fittedOrm.length-1],...lowerVals];
+    wrap.innerHTML='<canvas id="forecast-chart" height="140"></canvas>';
+    if (forecastChart) forecastChart.destroy();
+    forecastChart=new Chart(document.getElementById('forecast-chart').getContext('2d'),{
+        type:'line',
+        data:{labels:[...actualDates,...predDates],datasets:[
+            {label:'Actual 1RM',data:[...actualOrm,...Array(predDates.length).fill(null)],borderColor:'#c8f135',backgroundColor:'rgba(200,241,53,0.07)',pointBackgroundColor:'#c8f135',pointRadius:4,tension:0.3,fill:false},
+            {label:'Regression fit',data:[...fittedOrm,...Array(predDates.length).fill(null)],borderColor:'rgba(200,241,53,0.35)',borderDash:[4,3],pointRadius:0,tension:0.3,fill:false},
+            {label:'Projected 1RM',data:predFull,borderColor:'#4fc3f7',borderDash:[6,3],pointBackgroundColor:'#4fc3f7',pointRadius:4,tension:0.3,fill:false},
+            {label:'Upper CI',data:upperFull,borderColor:'transparent',backgroundColor:'rgba(79,195,247,0.07)',pointRadius:0,fill:'+1',tension:0.3},
+            {label:'Lower CI',data:lowerFull,borderColor:'transparent',backgroundColor:'rgba(79,195,247,0.07)',pointRadius:0,fill:false,tension:0.3}
+        ]},
+        options:{plugins:{legend:{display:true,labels:{color:'#555',font:{size:10},boxWidth:14,padding:10}}},scales:{x:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1a1a1a'}},y:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1a1a1a'}}}}
+    });
+    prWrap.innerHTML=`<table class="pr-table"><thead><tr><th>Horizon</th><th>Projected 1RM</th><th>vs Now</th><th>Range (95%)</th></tr></thead><tbody>${
+        reg.predictions.map(p=>{const delta=p.predicted_1rm-data.current_1rm;return `<tr><td>${p.label}</td><td><span class="pred-val">${p.predicted_1rm}</span> lbs</td><td><span class="pred-delta ${delta<0?'neg':''}">${delta>=0?'+':''}${delta.toFixed(1)} lbs</span></td><td style="color:var(--muted);font-size:11px">${p.lower} – ${p.upper}</td></tr>`;}).join('')
+    }</tbody></table>`;
+}
+
+// ── BANISTER ──
+async function loadBanister(muscle) {
+    const wrap=document.getElementById('banister-wrap');
+    if (!muscle) { wrap.innerHTML='<p class="empty">Select a muscle group to visualize the model</p>'; return; }
+    const res=await apiFetch(`/analytics/banister?muscle=${muscle}`); if (!res) return;
+    const data=await res.json();
+    if (!data.length) { wrap.innerHTML='<p class="empty">No workouts logged for this muscle group yet</p>'; return; }
+    wrap.innerHTML='<canvas id="banister-chart" height="110"></canvas>';
+    if (banisterChart) banisterChart.destroy();
+    banisterChart=new Chart(document.getElementById('banister-chart').getContext('2d'),{
+        type:'line',
+        data:{labels:data.map(d=>d.date),datasets:[
+            {label:'Fitness',data:data.map(d=>d.fitness),borderColor:'#c8f135',pointRadius:0,tension:0.4,fill:false,borderWidth:2},
+            {label:'Fatigue',data:data.map(d=>d.fatigue),borderColor:'#ff6b35',pointRadius:0,tension:0.4,fill:false,borderWidth:2},
+            {label:'Performance',data:data.map(d=>d.performance),borderColor:'#4fc3f7',pointRadius:0,tension:0.4,fill:true,backgroundColor:'rgba(79,195,247,0.04)',borderWidth:2,borderDash:[4,3]}
+        ]},
+        options:{plugins:{legend:{display:true,labels:{color:'#888',font:{size:11},boxWidth:14,padding:12}}},scales:{x:{ticks:{color:'#555',font:{size:10},maxTicksLimit:12},grid:{color:'#1a1a1a'}},y:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1a1a1a'}}}}
+    });
+}
+
+// ── AI TRAINING REPORT ───────────────────────────────────────────────────
+async function generateReport() {
+    const btn    = document.getElementById('report-btn');
+    const output = document.getElementById('report-output');
+    const bw     = parseFloat(localStorage.getItem('fs_bw') || '0') || null;
+
+    btn.disabled   = true;
+    btn.textContent = 'Generating...';
+    output.className = 'visible';
+    output.innerHTML = `<div class="report-loading">
+        <div class="report-loading-dot"></div>
+        <div class="report-loading-dot"></div>
+        <div class="report-loading-dot"></div>
+        <span>Claude is analysing your training data...</span>
+    </div>`;
+
+    const res = await apiFetch('/ai/training_report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bodyweight: bw })
+    });
+
+    btn.disabled    = false;
+    btn.textContent = 'Regenerate';
+
+    if (!res) return;
+    const data = await res.json();
+
+    if (data.error) {
+        output.innerHTML = `<div style="color:var(--warning);font-size:13px;">${data.error}</div>`;
+        return;
+    }
+
+    // Parse **SECTION TITLE** pattern and render as styled sections
+    const raw  = data.report;
+    const now  = new Date().toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    const SECTION_RE = /\*\*([^*]+)\*\*/g;
+    const parts = raw.split(SECTION_RE);
+
+    // parts = [pre-text, title1, body1, title2, body2, ...]
+    let html = `<div class="report-meta">Generated ${now} · Powered by Claude Sonnet</div>`;
+    for (let i = 1; i < parts.length; i += 2) {
+        const title = parts[i].trim();
+        const body  = (parts[i + 1] || '').trim();
+        html += `<div class="report-section">
+            <div class="report-section-title">${title}</div>
+            <div class="report-section-body">${body.replace(/\n/g, '<br>')}</div>
+        </div>`;
+    }
+    output.innerHTML = html;
+    loadReportHistory();
+}
+
+function renderReportText(text) {
+    const SECTION_RE = /\*\*([^*]+)\*\*/g;
+    const parts = text.split(SECTION_RE);
+    let html = '';
+    for (let i = 1; i < parts.length; i += 2) {
+        const title = parts[i].trim();
+        const body  = (parts[i + 1] || '').trim();
+        html += `<div class="report-section" style="margin-bottom:16px;">
+            <div class="report-section-title">${title}</div>
+            <div class="report-section-body">${body.replace(/\n/g,'<br>')}</div>
+        </div>`;
+    }
+    return html;
+}
+
+async function loadReportHistory() {
+    const res = await apiFetch('/reports'); if (!res) return;
+    const reports = await res.json();
+
+    const section = document.getElementById('report-history');
+    const list    = document.getElementById('report-history-list');
+    const count   = document.getElementById('report-count');
+
+    if (!reports.length) { section.style.display = 'none'; return; }
+
+    section.style.display = 'block';
+    count.textContent = `${reports.length} saved`;
+
+    list.innerHTML = reports.map(r => {
+        const date    = new Date(r.generated_at + 'Z').toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        const preview = r.report_text.replace(/\*\*/g,'').replace(/\n/g,' ').slice(0, 90) + '…';
+        return `<div class="report-history-item" id="rhi-${r.id}">
+            <div class="report-history-row" onclick="toggleReport(${r.id})">
+                <span class="report-history-date">${date}</span>
+                <span class="report-history-preview">${preview}</span>
+                <div class="report-history-actions">
+                    <button class="report-history-delete" onclick="deleteReport(event,${r.id})">Delete</button>
+                    <span class="report-expand-icon" id="icon-${r.id}">▾</span>
+                </div>
+            </div>
+            <div class="report-history-body" id="body-${r.id}">
+                <div style="padding-top:14px;">${renderReportText(r.report_text)}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleReport(id) {
+    const body = document.getElementById(`body-${id}`);
+    const icon = document.getElementById(`icon-${id}`);
+    body.classList.toggle('open');
+    icon.classList.toggle('open');
+}
+
+async function deleteReport(e, id) {
+    e.stopPropagation();
+    await apiFetch(`/reports/${id}`, { method: 'DELETE' });
+    document.getElementById(`rhi-${id}`)?.remove();
+    loadReportHistory();
+}
+
+// ── RECOVERY FORECAST ────────────────────────────────────────────────────
+async function loadRecoveryForecast() {
+    const res = await apiFetch('/analytics/recovery_forecast'); if (!res) return;
+    const data = await res.json();
+    const container = document.getElementById('recovery-grid');
+    const muscles = Object.keys(data);
+    if (!muscles.length) {
+        container.innerHTML = '<div class="empty">Log workouts to see your recovery forecast</div>';
+        return;
+    }
+    const ORDER = ['chest','back','legs','shoulders','arms','core'];
+    const sorted = [...ORDER.filter(m => data[m]), ...muscles.filter(m => !ORDER.includes(m) && data[m])];
+
+    container.innerHTML = sorted.map(muscle => {
+        const d = data[muscle];
+        const pct = d.pct_recovered;
+        const isReady = d.days_until_ready === 0;
+        const fillColor = pct >= 80 ? '#c8f135' : pct >= 50 ? '#ffaa00' : '#ff3b3b';
+        const glow = `${fillColor}55`;
+        const badgeColor = isReady ? '#c8f135' : pct >= 50 ? '#ffaa00' : '#ff6b35';
+        const trainedLabel = d.days_since === 0 ? 'Trained today' : d.days_since === 1 ? 'Trained yesterday' : `Trained ${d.days_since}d ago`;
+
+        return `<div class="recovery-row">
+            <div>
+                <div class="recovery-muscle">${muscle}</div>
+                <div class="recovery-sub">${trainedLabel} · ${d.last_trained}</div>
+            </div>
+            <div>
+                <div class="recovery-bar-track">
+                    <div class="recovery-bar-fill" style="width:${pct}%;background:${fillColor};box-shadow:0 0 8px ${glow}"></div>
+                </div>
+                <div class="recovery-pct">${pct}% cleared</div>
+            </div>
+            <div>
+                <div class="recovery-badge" style="color:${badgeColor}">${isReady ? 'READY ✓' : d.days_until_ready + 'd to go'}</div>
+                <div class="recovery-date">${d.ready_label}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── STRENGTH PERCENTILE ───────────────────────────────────────────────────
+const STRENGTH_STANDARDS = {
+    'bench press':         [0.50, 0.75, 1.00, 1.50, 2.00],
+    'incline bench press': [0.40, 0.60, 0.85, 1.25, 1.65],
+    'squat':               [0.75, 1.25, 1.50, 2.00, 2.50],
+    'deadlift':            [1.00, 1.50, 2.00, 2.50, 3.00],
+    'romanian deadlift':   [0.75, 1.00, 1.50, 2.00, 2.50],
+    'overhead press':      [0.35, 0.55, 0.75, 1.10, 1.40],
+    'barbell row':         [0.50, 0.65, 0.90, 1.20, 1.50],
+    'pull-up':             [0.00, 0.10, 0.30, 0.60, 1.00],
+    'leg press':           [1.00, 1.75, 2.50, 3.25, 4.00],
+    'dip':                 [0.00, 0.10, 0.35, 0.65, 1.00],
+};
+const LEVELS       = ['Untrained','Novice','Intermediate','Advanced','Elite'];
+const ZONE_BG      = ['#1e1e1e','#252525','rgba(122,85,0,0.5)','rgba(74,96,16,0.5)','rgba(26,80,112,0.5)'];
+const ZONE_COLOR   = ['#444','#666','#ffaa00','#c8f135','#4fc3f7'];
+
+function findStandard(exercise) {
+    const e = exercise.toLowerCase();
+    for (const key of Object.keys(STRENGTH_STANDARDS)) {
+        if (e.includes(key) || key.split(' ').every(w => e.includes(w))) return key;
+    }
+    return null;
+}
+
+function saveBodyweight() {
+    const bw = parseFloat(document.getElementById('bodyweight-input').value);
+    if (!bw || bw < 50 || bw > 500) return;
+    localStorage.setItem('fs_bw', bw);
+    document.getElementById('bw-hint').textContent = `Saved — ${bw} lbs`;
+    loadStrengthPercentile();
+}
+
+async function loadStrengthPercentile() {
+    const bw = parseFloat(localStorage.getItem('fs_bw') || '0');
+    const bwInput = document.getElementById('bodyweight-input');
+    if (bw) bwInput.value = bw;
+
+    const res = await apiFetch('/analytics/all_1rm'); if (!res) return;
+    const data = await res.json();
+    const container = document.getElementById('percentile-rows');
+
+    if (!bw) {
+        container.innerHTML = '<div class="empty">Enter your bodyweight above to see your strength ranking</div>';
+        return;
+    }
+
+    const matches = Object.entries(data)
+        .map(([ex, orm]) => ({ ex, orm, key: findStandard(ex) }))
+        .filter(x => x.key)
+        .sort((a, b) => b.orm - a.orm);
+
+    if (!matches.length) {
+        container.innerHTML = '<div class="empty">Log compound lifts (Bench Press, Squat, Deadlift, etc.) to see your ranking</div>';
+        return;
+    }
+
+    container.innerHTML = matches.map(({ ex, orm, key }) => {
+        const std = STRENGTH_STANDARDS[key];
+        const ratio = orm / bw;
+        const maxRatio = std[4] * 1.25;
+
+        // Current level
+        let level = 0;
+        for (let i = 0; i < std.length; i++) { if (ratio >= std[i]) level = i; }
+
+        // Zone widths as % of total bar
+        const ranges = [std[0], std[1]-std[0], std[2]-std[1], std[3]-std[2], maxRatio-std[3]];
+        const zonePcts = ranges.map(r => ((r / maxRatio) * 100).toFixed(2));
+
+        // Indicator position
+        const indPct = Math.min(97, (ratio / maxRatio) * 100).toFixed(2);
+
+        // Next milestone
+        const nextStd = std[level + 1];
+        const nextLbl = LEVELS[level + 1];
+        const nextKg  = nextStd ? `${Math.round(nextStd * bw)} lbs to reach ${nextLbl}` : '🏆 Elite';
+
+        const zones = LEVELS.map((lbl, i) =>
+            `<div class="percentile-zone" style="width:${zonePcts[i]}%;background:${ZONE_BG[i]};color:${ZONE_COLOR[i]};${level===i?`outline:2px solid ${ZONE_COLOR[i]};outline-offset:-2px;`:''}">`+
+            `<span>${lbl}</span></div>`
+        ).join('');
+
+        return `<div class="percentile-item">
+            <div class="percentile-header">
+                <span class="percentile-exercise">${ex}</span>
+                <span class="percentile-1rm">${orm} lbs est. 1RM</span>
+            </div>
+            <div class="percentile-bar" id="bar-${ex.replace(/\s+/g,'_')}">
+                ${zones}
+                <div class="percentile-indicator" style="left:${indPct}%"></div>
+            </div>
+            <div class="percentile-footer">
+                <span class="percentile-next">${nextKg}</span>
+                <span class="percentile-level-badge" style="color:${ZONE_COLOR[level]}">${LEVELS[level]}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── PROGRESS ──
+async function loadProgress(exercise) {
+    const wrap=document.getElementById('chart-wrap');
+    if (!exercise) { wrap.innerHTML='<p class="empty">Select an exercise to see your progress</p>'; if(progressChart){progressChart.destroy();progressChart=null;} return; }
+    const res=await apiFetch(`/progress?exercise=${encodeURIComponent(exercise)}`); if (!res) return;
+    const data=await res.json();
+    if (!data.length) { wrap.innerHTML='<p class="empty">No sessions logged for this exercise yet</p>'; if(progressChart){progressChart.destroy();progressChart=null;} return; }
+    wrap.innerHTML='<canvas id="progress-chart" height="130"></canvas>';
+    if (progressChart) progressChart.destroy();
+    progressChart=new Chart(document.getElementById('progress-chart').getContext('2d'),{
+        type:'line',
+        data:{labels:data.map(d=>d.date),datasets:[{data:data.map(d=>d.weight),borderColor:'#c8f135',backgroundColor:'rgba(200,241,53,0.07)',pointBackgroundColor:'#c8f135',pointRadius:4,tension:0.35,fill:true}]},
+        options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1a1a1a'}},y:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1a1a1a'}}}}
+    });
+}
 </script>
-
 </body>
 </html>
