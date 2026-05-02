@@ -94,7 +94,8 @@ echo "ANTHROPIC_API_KEY=your_key_here" > .env
 ./run.sh
 ```
 
-Opens two accounts at:
+`run.sh` starts two independent FitScript instances in parallel on the same machine — one on port 8000 and one on port 8001. Both share the same SQLite database but run as separate processes, so you can be logged into two different accounts simultaneously (useful for testing or side-by-side comparison).
+
 - **Account 1** → http://localhost:8000
 - **Account 2** → http://localhost:8001
 
